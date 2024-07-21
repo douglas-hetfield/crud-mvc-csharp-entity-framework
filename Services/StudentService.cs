@@ -2,6 +2,8 @@ using ApiCrud.DAO;
 using ApiCrud.DTO;
 using ApiCrud.Models;
 using ApiCrud.Records;
+using Sprache;
+using System.ComponentModel.DataAnnotations;
 
 namespace ApiCrud.Services;
 
@@ -12,6 +14,11 @@ public class StudentService(StudentDAO studentDAO)
     public async Task<IResult> Save(AddStudentRequest request, CancellationToken ct)
     {
         try{
+            var errors = ValidateForm(request);
+            if(errors.Any()){
+                return Results.ValidationProblem(errors);
+            }
+
             var hasStudent = await _studentDao.HasStudent(request.Name, ct);
             if(hasStudent) return Results.Conflict("Estudante Já existe!");
             
@@ -65,5 +72,26 @@ public class StudentService(StudentDAO studentDAO)
         }catch(Exception ex){
             return Results.Problem($"Erro inesperado: {ex.Message}");
         }
+    }
+
+    protected static IDictionary<string, string[]> ValidateForm<T>(T obj){
+
+        if(obj == null) throw new ArgumentNullException(nameof(obj), "O objeto a ser validado não pode ser nulo.");
+
+        var validationContext = new ValidationContext(obj);
+        var validationResults = new List<ValidationResult>();
+
+        bool isValid = Validator.TryValidateObject(obj, validationContext, validationResults, validateAllProperties: true);
+        if(!isValid){
+            return validationResults
+                .SelectMany(
+                    result => result.MemberNames,
+                    (result, memberName) => new { memberName, result.ErrorMessage }
+                )
+                .GroupBy(x => x.memberName)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage ?? string.Empty).ToArray());
+        }
+        
+        return new Dictionary<string, string[]>();
     }
 }
