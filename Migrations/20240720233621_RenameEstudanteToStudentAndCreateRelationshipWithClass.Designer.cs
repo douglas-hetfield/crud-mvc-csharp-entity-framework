@@ -4,6 +4,7 @@ using ApiCrud.DAO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiCrud.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240720233621_RenameEstudanteToStudentAndCreateRelationshipWithClass")]
+    partial class RenameEstudanteToStudentAndCreateRelationshipWithClass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace ApiCrud.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("ApiCrud.Models.Course", b =>
+            modelBuilder.Entity("ApiCrud.Models.Class", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,12 +35,9 @@ namespace ApiCrud.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("tinyint(1)");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Course");
+                    b.ToTable("Class");
                 });
 
             modelBuilder.Entity("ApiCrud.Models.Student", b =>
@@ -58,48 +58,48 @@ namespace ApiCrud.Migrations
                     b.ToTable("Student");
                 });
 
-            modelBuilder.Entity("ApiCrud.Models.StudentCourse", b =>
+            modelBuilder.Entity("ApiCrud.Models.StudentClass", b =>
                 {
                     b.Property<Guid>("StudentId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("CourseId")
+                    b.Property<Guid>("ClassId")
                         .HasColumnType("char(36)");
 
-                    b.HasKey("StudentId", "CourseId");
+                    b.HasKey("StudentId", "ClassId");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("ClassId");
 
-                    b.ToTable("StudentCourse");
+                    b.ToTable("StudentClasses");
                 });
 
-            modelBuilder.Entity("ApiCrud.Models.StudentCourse", b =>
+            modelBuilder.Entity("ApiCrud.Models.StudentClass", b =>
                 {
-                    b.HasOne("ApiCrud.Models.Course", "Course")
-                        .WithMany("StudentCourses")
-                        .HasForeignKey("CourseId")
+                    b.HasOne("ApiCrud.Models.Class", "Class")
+                        .WithMany("StudentClasses")
+                        .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ApiCrud.Models.Student", "Student")
-                        .WithMany("StudentCourses")
+                        .WithMany("StudentClasses")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
+                    b.Navigation("Class");
 
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("ApiCrud.Models.Course", b =>
+            modelBuilder.Entity("ApiCrud.Models.Class", b =>
                 {
-                    b.Navigation("StudentCourses");
+                    b.Navigation("StudentClasses");
                 });
 
             modelBuilder.Entity("ApiCrud.Models.Student", b =>
                 {
-                    b.Navigation("StudentCourses");
+                    b.Navigation("StudentClasses");
                 });
 #pragma warning restore 612, 618
         }

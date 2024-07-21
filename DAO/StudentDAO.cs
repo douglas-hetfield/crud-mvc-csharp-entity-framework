@@ -4,19 +4,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiCrud.DAO;
 
-public class EstudanteDAO(AppDbContext context) {
+public class StudentDAO(AppDbContext context) {
     private readonly AppDbContext _context = context;
 
-    public async Task<bool> HasEstudante(string Name, CancellationToken ct)
+    public async Task<bool> HasStudent(string Name, CancellationToken ct)
     {
-        return await _context.Estudante.AnyAsync(estudante => estudante.Name == Name, ct);
+        return await _context.Student
+            .AnyAsync(student => student.Name == Name, ct);
     }
 
-    public async Task<Estudante> Save(Estudante estudante, CancellationToken ct)
+    public async Task<Student> Save(Student student, CancellationToken ct)
     {
         try{
-            await _context.Estudante.AddAsync(estudante, ct);
-            return estudante;
+            await _context.Student.AddAsync(student, ct);
+            return student;
 
         }catch(DbUpdateException ex){
             Console.WriteLine($"Erro ao salvar estudante no banco de dados: {ex.Message}");
@@ -28,13 +29,13 @@ public class EstudanteDAO(AppDbContext context) {
         }
     }
 
-    public async Task<List<EstudanteDTO>> All(CancellationToken ct)
+    public async Task<List<StudentDTO>> All(CancellationToken ct)
     {
         try{
             return await _context
-                .Estudante
-                .Where(estudante => estudante.Status)
-                .Select(estudante => new EstudanteDTO(estudante.Id, estudante.Name))
+                .Student
+                .Where(student => student.Status)
+                .Select(student => new StudentDTO(student.Id, student.Name))
                 .ToListAsync(ct);
 
         }catch(Exception ex){
@@ -43,12 +44,12 @@ public class EstudanteDAO(AppDbContext context) {
         }
     }
 
-    public async Task<Estudante?> FindById(Guid Id, CancellationToken ct)
+    public async Task<Student?> FindById(Guid Id, CancellationToken ct)
     {
         try{
             return await _context
-                .Estudante
-                .FirstOrDefaultAsync(estudante => estudante.Id == Id, ct);
+                .Student
+                .FirstOrDefaultAsync(student => student.Id == Id, ct);
 
         }catch(Exception ex){
             Console.WriteLine($"Erro inesperado: {ex.Message}");
@@ -59,7 +60,8 @@ public class EstudanteDAO(AppDbContext context) {
     public async Task SaveChangesAsync(CancellationToken ct)
     {
         try{
-            await _context.SaveChangesAsync(ct);
+            await _context
+                .SaveChangesAsync(ct);
 
         }catch(DbUpdateException ex){
             Console.WriteLine($"Erro ao salvar estudante no banco de dados: {ex.Message}");
@@ -70,5 +72,4 @@ public class EstudanteDAO(AppDbContext context) {
             throw;
         }
     }
-    
 }

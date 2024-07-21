@@ -8,8 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AppDbContext>();
-builder.Services.AddScoped<EstudanteService>();
-builder.Services.AddScoped<EstudanteDAO>();
+
+builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<StudentDAO>();
+
+builder.Services.AddScoped<CourseService>();
+builder.Services.AddScoped<CourseDAO>();
+
+builder.Services.AddScoped<StudentCourseDAO>();
 
 var app = builder.Build();
 
@@ -21,6 +27,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-EstudantesRoutes.addRoutesEstudantes(app);
+StudentRoutes.AddRoutes(app);
+CourseRoutes.AddRoutes(app);
 
 app.Run();
